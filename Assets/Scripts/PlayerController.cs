@@ -3,29 +3,35 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 0f;
-    [SerializeField] private float rotationSpeed = 0f;
+    [SerializeField] private EngineController rightEngine;
+    [SerializeField] private EngineController leftEngine;   
     // Update is called once per frame
     void Update()
     {
 
-        float movementY = 0f;
 
-        if (Input.GetKey(KeyCode.Q))
-            transform.Rotate (Vector3.down * rotationSpeed * Time.deltaTime);
-        if (Input.GetKey(KeyCode.E))
-            transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime);
+        Vector3 direction = Vector3.zero;
+
+        direction.x = Input.GetAxisRaw("Horizontal");   // -1 | 0 | 1
+                                                       //movement.x = Input.GetAxis("Horizontal");    // -1 > < 1
+        direction.y = 0;
+        direction.z = Input.GetAxisRaw("Vertical");
 
         if (Input.GetKey(KeyCode.Space))
-        {
-            movementY = 1f;
-        }
-        if (Input.GetKey(KeyCode.LeftControl))
-        {
-            movementY = -1f;
-        }
+            direction.y = 1;
 
-        Vector3 movement = new Vector3 (Input.GetAxis("Horizontal"), movementY, Input.GetAxis("Vertical"));
-        transform.position += movement * speed * Time.deltaTime;
+        if (Input.GetKey(KeyCode.LeftControl))
+            direction.y = -1;
+
+        direction.Normalize();
+        //movement = movement.normalized;
+
+        Vector3 movement = direction * (speed * Time.deltaTime);
+        transform.Translate(movement);
+
+        leftEngine.Set(direction.x < 0);
+        rightEngine.Set(direction.x > 0);
+
 
     }
 }
